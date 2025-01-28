@@ -1,0 +1,8 @@
+# Ignore all files inside the upload folder
+upload/*
+
+# Allow the folder itself to remain in the repository
+!upload/
+
+# Optionally, allow specific files if needed (e.g., placeholder)
+!upload/.gitkeep

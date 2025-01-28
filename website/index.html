@@ -1,0 +1,320 @@
+
+<div class="container">
+    <img src="http://americanapd.com/wp-content/uploads/2025/01/APD-Logo-Vector-Source-01.png" alt="APD Logo" class="logo">
+    <h1>Register as a New Customer</h1>
+    <form id="registrationForm" action="http://127.0.0.1:5000/submit-registration" method="POST" enctype="multipart/form-data">
+        <!-- Business Type -->
+        <div class="form-group-container">
+            <div class="form-group">
+                <label for="businessType">*Business Type</label>
+                <select id="businessType" name="businessType" required>
+                    <option value="" disabled>Select your business type</option>
+                    <option value="Pharmacy - Independent" selected>Pharmacy - Independent</option>
+                    <option value="Pharmacy - Chain">Pharmacy - Chain</option>
+                    <option value="LTC Pharmacy">LTC Pharmacy</option>
+                    <option value="Clinic">Clinic</option>
+                    <option value="Hospital">Hospital</option>
+                    <option value="Wholesaler">Wholesaler</option>
+                    <option value="Repackager">Repackager</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="companyName">*Company Name</label>
+                <input type="text" id="companyName" name="companyName" value="ABC Pharmacy" required>
+            </div>
+        </div>
+
+        <!-- Company Information -->
+        <div class="form-group-container">
+            <div class="form-group">
+                <label for="dbaName">D.B.A Name (If Applicable)</label>
+                <input type="text" id="dbaName" name="dbaName" value="ABC DBA">
+            </div>
+            <div class="form-group">
+                <label for="gln">GLN (Global Location Number)</label>
+                <input type="text" id="gln" name="gln" value="1234567890123" placeholder="Enter GLN">
+            </div>
+        </div>
+
+        <!-- Shipping Information -->
+        <div class="form-group-container">
+            <div class="form-group">
+                <label for="shippingAddress">*Shipping Street</label>
+                <input type="text" id="shippingAddress" name="shippingAddress" value="123 Main St" required>
+            </div>
+            <div class="form-group">
+                <label for="shippingSuite">Suite (If Applicable)</label>
+                <input type="text" id="shippingSuite" name="shippingSuite" value="Suite 100">
+            </div>
+            <div class="form-group">
+                <label for="shippingCity">*Shipping City</label>
+                <input type="text" id="shippingCity" name="shippingCity" value="New York" required>
+            </div>
+            <div class="form-group">
+                <label for="shippingState">*Shipping State</label>
+                <input type="text" id="shippingState" name="shippingState" value="NY" required>
+            </div>
+            <div class="form-group">
+                <label for="shippingZip">*Shipping Zip</label>
+                <input type="text" id="shippingZip" name="shippingZip" value="10001" required pattern="\d{5}" title="Enter a valid 5-digit zip code">
+            </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="form-group-container">
+            <div class="form-group">
+                <label for="phone">*Phone</label>
+                <input type="tel" id="phone" name="phone" value="1234567890" required pattern="\d{10}" title="Enter a 10-digit phone number">
+            </div>
+            <div class="form-group">
+                <label for="fax">Fax</label>
+                <input type="text" id="fax" name="fax" value="1234567890">
+            </div>
+            <div class="form-group">
+                <label for="email">*Email</label>
+                <input type="email" id="email" name="email" value="test@example.com" required>
+            </div>
+        </div>
+
+        <!-- Billing Information -->
+        <div class="form-group-container">
+            <div class="form-group">
+                <label for="billingSameAsShipping">Billing Same as Shipping?</label>
+                <select id="billingSameAsShipping" name="billingSameAsShipping">
+                    <option value="yes">Yes</option>
+                    <option value="no" selected>No</option>
+                </select>
+            </div>
+        </div>
+        <div id="billingFields" class="form-group-container">
+            <div class="form-group">
+                <label for="billingAddress">Billing Street</label>
+                <input type="text" id="billingAddress" name="billingAddress" value="456 Billing St">
+            </div>
+            <div class="form-group">
+                <label for="billingSuite">Suite</label>
+                <input type="text" id="billingSuite" name="billingSuite" value="Suite 200">
+            </div>
+            <div class="form-group">
+                <label for="billingCity">Billing City</label>
+                <input type="text" id="billingCity" name="billingCity" value="Los Angeles">
+            </div>
+            <div class="form-group">
+                <label for="billingState">Billing State</label>
+                <input type="text" id="billingState" name="billingState" value="CA">
+            </div>
+            <div class="form-group">
+                <label for="billingZip">Billing Zip</label>
+                <input type="text" id="billingZip" name="billingZip" value="90001">
+            </div>
+        </div>
+
+        <!-- Ownership Information -->
+        <div class="form-group-container">
+            <div class="form-group">
+                <label for="ownerName">*Owner Name</label>
+                <input type="text" id="ownerName" name="ownerName" value="John Doe" required>
+            </div>
+            <div class="form-group">
+                <label for="secondOwnerName">2nd Owner Name (If Applicable)</label>
+                <input type="text" id="secondOwnerName" name="secondOwnerName" value="Jane Doe">
+            </div>
+        </div>
+
+        <!-- NPI Number and PIC Driver License/ID -->
+        <div class="form-group-container">
+            <div class="form-group">
+                <label for="npiNumber">*NPI Number</label>
+                <input type="text" id="npiNumber" name="npiNumber" value="1234567890" placeholder="Enter NPI Number" required>
+            </div>
+            <div class="form-group">
+                <label for="picDriverLicense">*PIC Driver License/ID</label>
+                <input type="file" id="picDriverLicense" name="picDriverLicense" accept=".pdf, .jpg, .jpeg, .png" required>
+            </div>
+        </div>
+
+        <!-- State License and DEA License -->
+        <div class="form-group-container">
+            <div class="form-group">
+                <label for="stateLicenseNumber">*State License Number</label>
+                <input type="text" id="stateLicenseNumber" name="stateLicenseNumber" value="SL123456" placeholder="Enter State License Number" required>
+            </div>
+            <div class="form-group">
+                <label for="deaLicenseNumber">*DEA License Number</label>
+                <input type="text" id="deaLicenseNumber" name="deaLicenseNumber" value="DEA123456" placeholder="Enter DEA License Number" required>
+            </div>
+        </div>
+        <div class="form-group-container">
+            <div class="form-group">
+                <label for="stateLicenseUpload">*Upload State License</label>
+                <input type="file" id="stateLicenseUpload" name="stateLicenseUpload" accept=".pdf, .jpg, .jpeg, .png" required>
+            </div>
+            <div class="form-group">
+                <label for="deaLicenseUpload">*Upload DEA License</label>
+                <input type="file" id="deaLicenseUpload" name="deaLicenseUpload" accept=".pdf, .jpg, .jpeg, .png" required>
+            </div>
+        </div>
+
+        <!-- Mandatory Checkboxes -->
+        <div class="form-group-container">
+            <div class="form-group">
+                <input type="checkbox" id="agreeTerms" name="agreeTerms" checked required>
+                <label for="agreeTerms">*I have read and agree to the <a href="terms_and_conditions.pdf" target="_blank">Terms and Conditions</a>.</label>
+            </div>
+            <div class="form-group">
+                <input type="checkbox" id="agreeText" name="agreeText" checked required>
+                <label for="agreeText">*I agree to receive text messages about my order.</label>
+            </div>
+        </div>
+
+        <!-- Signature Section -->
+        <div class="form-group-container">
+            <div class="form-group">
+                <label for="signature">*Signature</label>
+                <input type="text" id="signature" name="signature" value="John Doe" placeholder="Type your full name" required>
+            </div>
+            <div class="form-group">
+                <label for="signatureDate">*Date</label>
+                <input type="date" id="signatureDate" name="signatureDate" value="2023-10-01" required>
+            </div>
+        </div>
+
+        <!-- File Uploads for Form Image and PDF -->
+        <div class="form-group-container">
+            <div class="form-group">
+                <label for="formImage">*Upload Filled Form Image</label>
+                <input type="file" id="formImage" name="formImage" accept=".jpg, .jpeg, .png" required>
+            </div>
+            <div class="form-group">
+                <label for="formPdf">*Upload Filled Form PDF</label>
+                <input type="file" id="formPdf" name="formPdf" accept=".pdf" required>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit">Submit</button>
+    </form>
+</div>
+
+<script>
+    const billingSameAsShipping = document.getElementById('billingSameAsShipping');
+    const billingFields = document.getElementById('billingFields');
+
+    billingSameAsShipping.addEventListener('change', function () {
+        if (this.value === 'yes') {
+            billingFields.style.display = 'none';
+        } else {
+            billingFields.style.display = 'flex';
+        }
+    });
+
+    // Initialize state on page load
+    if (billingSameAsShipping.value === 'yes') {
+        billingFields.style.display = 'none';
+    }
+</script>
+ 
+<script>
+    document.getElementById('registrationForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        try {
+            const response = await fetch('http://127.0.0.1:5000/submit-registration', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert(result.message);
+            } else {
+                alert(`Error: ${result.error}`);
+            }
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        }
+    });
+</script>
+
+
+<style>
+    .container {
+        max-width: 900px;
+        margin: 50px auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+
+
+    .logo {
+        display: block;
+        margin: 0 auto 20px;
+        max-width: 450px;
+    }
+
+
+
+    .form-group-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+
+
+    .form-group {
+        flex: 1 1 calc(50% - 10px);
+        display: flex;
+        flex-direction: column;
+    }
+
+
+
+    label {
+        font-weight: bold;
+    }
+
+
+
+    input,
+    select,
+    textarea {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+
+
+    button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #0056D6;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+
+
+    button:hover {
+        background-color: #003f9e;
+    }
+
+
+
+    @media (max-width: 600px) {
+        .form-group {
+            flex: 1 1 100%;
+        }
+    }
+</style>
