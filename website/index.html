@@ -1,8 +1,14 @@
-
 <div class="container">
-    <img src="http://americanapd.com/wp-content/uploads/2025/01/APD-Logo-Vector-Source-01.png" alt="APD Logo" class="logo">
+    <!-- Message Box for Results -->
+    <div id="messageBox" style="display: none; margin-bottom: 20px; padding: 10px; border-radius: 5px;"></div>
+
+    <img src="http://americanapd.com/wp-content/uploads/2025/01/APD-Logo-Vector-Source-01.png" alt="APD Logo"
+        class="logo">
     <h1>Register as a New Customer</h1>
-    <form id="registrationForm" action="http://127.0.0.1:5000/submit-registration" method="POST" enctype="multipart/form-data">
+    <form id="registrationForm" action="http://127.0.0.1:5000/submit-registration" method="POST"
+        enctype="multipart/form-data">
+
+
         <!-- Business Type -->
         <div class="form-group-container">
             <div class="form-group">
@@ -56,7 +62,8 @@
             </div>
             <div class="form-group">
                 <label for="shippingZip">*Shipping Zip</label>
-                <input type="text" id="shippingZip" name="shippingZip" value="10001" required pattern="\d{5}" title="Enter a valid 5-digit zip code">
+                <input type="text" id="shippingZip" name="shippingZip" value="10001" required pattern="\d{5}"
+                    title="Enter a valid 5-digit zip code">
             </div>
         </div>
 
@@ -64,7 +71,8 @@
         <div class="form-group-container">
             <div class="form-group">
                 <label for="phone">*Phone</label>
-                <input type="tel" id="phone" name="phone" value="1234567890" required pattern="\d{10}" title="Enter a 10-digit phone number">
+                <input type="tel" id="phone" name="phone" value="1234567890" required pattern="\d{10}"
+                    title="Enter a 10-digit phone number">
             </div>
             <div class="form-group">
                 <label for="fax">Fax</label>
@@ -125,11 +133,13 @@
         <div class="form-group-container">
             <div class="form-group">
                 <label for="npiNumber">*NPI Number</label>
-                <input type="text" id="npiNumber" name="npiNumber" value="1234567890" placeholder="Enter NPI Number" required>
+                <input type="text" id="npiNumber" name="npiNumber" value="1234567890" placeholder="Enter NPI Number"
+                    required>
             </div>
             <div class="form-group">
                 <label for="picDriverLicense">*PIC Driver License/ID</label>
-                <input type="file" id="picDriverLicense" name="picDriverLicense" accept=".pdf, .jpg, .jpeg, .png" required>
+                <input type="file" id="picDriverLicense" name="picDriverLicense" accept=".pdf, .jpg, .jpeg, .png"
+                    required>
             </div>
         </div>
 
@@ -137,21 +147,25 @@
         <div class="form-group-container">
             <div class="form-group">
                 <label for="stateLicenseNumber">*State License Number</label>
-                <input type="text" id="stateLicenseNumber" name="stateLicenseNumber" value="SL123456" placeholder="Enter State License Number" required>
+                <input type="text" id="stateLicenseNumber" name="stateLicenseNumber" value="SL123456"
+                    placeholder="Enter State License Number" required>
             </div>
             <div class="form-group">
                 <label for="deaLicenseNumber">*DEA License Number</label>
-                <input type="text" id="deaLicenseNumber" name="deaLicenseNumber" value="DEA123456" placeholder="Enter DEA License Number" required>
+                <input type="text" id="deaLicenseNumber" name="deaLicenseNumber" value="DEA123456"
+                    placeholder="Enter DEA License Number" required>
             </div>
         </div>
         <div class="form-group-container">
             <div class="form-group">
                 <label for="stateLicenseUpload">*Upload State License</label>
-                <input type="file" id="stateLicenseUpload" name="stateLicenseUpload" accept=".pdf, .jpg, .jpeg, .png" required>
+                <input type="file" id="stateLicenseUpload" name="stateLicenseUpload" accept=".pdf, .jpg, .jpeg, .png"
+                    required>
             </div>
             <div class="form-group">
                 <label for="deaLicenseUpload">*Upload DEA License</label>
-                <input type="file" id="deaLicenseUpload" name="deaLicenseUpload" accept=".pdf, .jpg, .jpeg, .png" required>
+                <input type="file" id="deaLicenseUpload" name="deaLicenseUpload" accept=".pdf, .jpg, .jpeg, .png"
+                    required>
             </div>
         </div>
 
@@ -159,7 +173,8 @@
         <div class="form-group-container">
             <div class="form-group">
                 <input type="checkbox" id="agreeTerms" name="agreeTerms" checked required>
-                <label for="agreeTerms">*I have read and agree to the <a href="terms_and_conditions.pdf" target="_blank">Terms and Conditions</a>.</label>
+                <label for="agreeTerms">*I have read and agree to the <a href="terms_and_conditions.pdf"
+                        target="_blank">Terms and Conditions</a>.</label>
             </div>
             <div class="form-group">
                 <input type="checkbox" id="agreeText" name="agreeText" checked required>
@@ -171,7 +186,8 @@
         <div class="form-group-container">
             <div class="form-group">
                 <label for="signature">*Signature</label>
-                <input type="text" id="signature" name="signature" value="John Doe" placeholder="Type your full name" required>
+                <input type="text" id="signature" name="signature" value="John Doe" placeholder="Type your full name"
+                    required>
             </div>
             <div class="form-group">
                 <label for="signatureDate">*Date</label>
@@ -192,11 +208,72 @@
         </div>
 
         <!-- Submit Button -->
-        <button type="submit">Submit</button>
+        <button type="submit" id="submitButton">Submit</button>
     </form>
 </div>
 
 <script>
+    const form = document.getElementById('registrationForm');
+    const messageBox = document.getElementById('messageBox');
+    const submitButton = document.getElementById('submitButton');
+
+    form.addEventListener('submit', async function (event) {
+        event.preventDefault(); // Prevent the form from submitting the traditional way
+
+        // Perform form validation
+        if (!form.checkValidity()) {
+            alert('Please fill out all required fields correctly.');
+            return;
+        }
+
+        // Change button text to "Sending..."
+        submitButton.textContent = 'Sending...';
+        submitButton.disabled = true;
+
+        try {
+            // Prepare form data
+            const formData = new FormData(form);
+
+            // Send form data to the API
+            const response = await fetch('http://127.0.0.1:5000/submit-registration', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                // Show success message
+                showMessage('Registration successful and email sent!', 'success');
+            } else {
+                // Show error message
+                showMessage(result.error || 'An error occurred. Please try again.', 'error');
+            }
+        } catch (error) {
+            // Show error message
+            showMessage('An error occurred. Please try again.', 'error');
+        } finally {
+            // Reset button text and enable it
+            submitButton.textContent = 'Submit';
+            submitButton.disabled = false;
+        }
+    });
+
+    // Function to show messages in the message box
+    function showMessage(message, type) {
+        messageBox.textContent = message;
+        messageBox.style.display = 'block';
+        messageBox.style.backgroundColor = type === 'success' ? '#d4edda' : '#f8d7da';
+        messageBox.style.color = type === 'success' ? '#155724' : '#721c24';
+        messageBox.style.border = `1px solid ${type === 'success' ? '#c3e6cb' : '#f5c6cb'}`;
+
+        // Hide the message box after 5 seconds
+        setTimeout(() => {
+            messageBox.style.display = 'none';
+        }, 5000);
+    }
+
+    // Handle the billing same as shipping toggle
     const billingSameAsShipping = document.getElementById('billingSameAsShipping');
     const billingFields = document.getElementById('billingFields');
 
@@ -213,32 +290,15 @@
         billingFields.style.display = 'none';
     }
 </script>
- 
-<script>
-    document.getElementById('registrationForm').addEventListener('submit', async function (e) {
-        e.preventDefault();
-
-        const formData = new FormData(this);
-
-        try {
-            const response = await fetch('http://127.0.0.1:5000/submit-registration', {
-                method: 'POST',
-                body: formData
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                alert(result.message);
-            } else {
-                alert(`Error: ${result.error}`);
-            }
-        } catch (error) {
-            alert(`Error: ${error.message}`);
-        }
-    });
-</script>
-
+<style>
+    #messageBox {
+        display: none;
+        margin-bottom: 20px;
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+</style>
 
 <style>
     .container {
