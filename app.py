@@ -174,4 +174,6 @@ def submit_registration():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Use Heroku's dynamically assigned port
+    port = int(os.environ.get('PORT', 5000))  # Default to 5000 for local testing
+    app.run(host='0.0.0.0', port=port, debug=True)
