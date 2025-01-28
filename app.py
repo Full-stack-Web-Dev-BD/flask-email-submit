@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify,render_template
 from flask_mail import Mail, Message
 from dotenv import load_dotenv
 import os
@@ -88,6 +88,12 @@ init_db()
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+
+
+@app.route('/')
+def home():
+    return render_template('index.html')
+
 
 @app.route('/submit-registration', methods=['POST'])
 def submit_registration():
