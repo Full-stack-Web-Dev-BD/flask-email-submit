@@ -5,12 +5,17 @@ import os
 import sqlite3
 from werkzeug.utils import secure_filename
 from datetime import datetime
+from flask_cors import CORS
 
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
-
+CORS(app, resources={r"/*": {
+    "origins": "*",  # Allow all origins
+    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # Allow specific methods
+    "allow_headers": ["Content-Type", "Authorization"],  # Allow specific headers
+}})
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
@@ -97,6 +102,7 @@ def home():
 
 @app.route('/submit-registration', methods=['POST'])
 def submit_registration():
+    print("Received  form req....")
     conn = None
     try:
         # Handle form data and files
