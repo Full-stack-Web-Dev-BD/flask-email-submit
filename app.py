@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 from flask_cors import CORS
 from fpdf import FPDF
+from PIL import Image  # For image processing
 
 # Load environment variables
 load_dotenv()
@@ -41,6 +42,8 @@ def get_db_connection():
 def close_db(conn):
     if conn:
         conn.close()
+
+# customize the PDF
 def generate_pdf(form_data, file_paths):
     print("Generating PDF...")
     pdf = FPDF()
@@ -120,6 +123,14 @@ def home():
     return render_template('index.html')
 
 
+# Function to convert an image to PDF
+def convert_image_to_pdf(image_path, pdf_path):
+    img = Image.open(image_path)
+    pdf = FPDF(unit="pt", format=[img.width, img.height])
+    pdf.add_page()
+    pdf.image(image_path, 0, 0, img.width, img.height)
+    pdf.output(pdf_path)
+
 @app.route('/submit-registration', methods=['POST'])
 def submit_registration():
     conn = None
@@ -132,14 +143,29 @@ def submit_registration():
         agree_text = 1 if form_data.get('agreeText') == 'on' else 0
         
         file_paths = {}
+        pdf_paths = []  # To store paths of all PDFs (main + image-converted PDFs)
+        
+        # Save uploaded files and convert images to PDFs
         for key, file in files.items():
-            filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{secure_filename(file.filename)}"
+            # Generate a unique filename using UUID
+            unique_id = str(uuid.uuid4())[:8]  # Use the first 8 characters of a UUID
+            filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{unique_id}_{secure_filename(file.filename)}"
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
             file_paths[key] = file_path
+            
+            # Convert image to PDF if the file is an image
+            if file.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
+                pdf_filename = f"{os.path.splitext(filename)[0]}.pdf"
+                pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], pdf_filename)
+                convert_image_to_pdf(file_path, pdf_path)
+                pdf_paths.append(pdf_path)
         
-        pdf_path = generate_pdf(form_data, file_paths)
+        # Generate the main registration PDF
+        main_pdf_path = generate_pdf(form_data, file_paths)
+        pdf_paths.append(main_pdf_path)
         
+        # Save registration data to the database
         conn = get_db_connection()
         conn.execute('''
             INSERT INTO registrations (
@@ -164,10 +190,15 @@ def submit_registration():
         ))
         conn.commit()
         
+        # Send email with all PDFs attached
         msg = Message("New Registration Submission", sender=os.getenv('MAIL_USERNAME'), recipients=[form_data['email']])
-        msg.body = "Please find the attached registration details."
-        with open(pdf_path, 'rb') as pdf_file:
-            msg.attach(filename="registragittion_details.pdf", content_type="application/pdf", data=pdf_file.read())
+        msg.body = "A new customer has submitted their registration form. The details are attached."
+        
+        # Attach all PDFs
+        for pdf_path in pdf_paths:
+            with open(pdf_path, 'rb') as pdf_file:
+                msg.attach(filename=os.path.basename(pdf_path), content_type="application/pdf", data=pdf_file.read())
+        
         mail.send(msg)
         
         return jsonify({"message": "Registration successful and email sent"}), 200
@@ -178,7 +209,6 @@ def submit_registration():
     finally:
         if conn:
             close_db(conn)
-
 
 if __name__ == '__main__':
     # Use Heroku's dynamically assigned port
