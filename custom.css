@@ -1,0 +1,138 @@
+/* Base .cbtn styling */
+.cbtn {
+    padding: 10px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    background-color: #0056D6;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    outline: none;
+}
+
+/* Hover effect */
+.cbtn:hover {
+    background-color: #0041a8; /* Darker shade on hover */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* Slightly larger shadow on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+}
+
+/* Active (click) effect */
+.cbtn:active {
+    background-color: #003080; /* Even darker shade on click */
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2); /* Smaller shadow on click */
+    transform: translateY(0); /* Reset lift effect */
+}
+
+/* Disabled .cbtn styling */
+.cbtn:disabled {
+    background-color: #cccccc; /* Grayed out */
+    color: #666666; /* Dimmed text */
+    cursor: not-allowed; /* Change cursor to indicate disabled state */
+    box-shadow: none; /* Remove shadow */
+    transform: none; /* Remove any lift effect */
+}
+
+/* Secondary .cbtn styling */
+.cbtn.secondary {
+    background-color: #6c757d; /* Gray color for secondary buttons */
+}
+
+.cbtn.secondary:hover {
+    background-color: #5a6268; /* Darker gray on hover */
+}
+
+/* Success .cbtn styling */
+.cbtn.success {
+    background-color: #28a745; /* Green color for success buttons */
+}
+
+.cbtn.success:hover {
+    background-color: #218838; /* Darker green on hover */
+}
+
+/* Danger .cbtn styling */
+.cbtn.danger {
+    background-color: #dc3545; /* Red color for danger buttons */
+}
+
+.cbtn.danger:hover {
+    background-color: #c82333; /* Darker red on hover */
+}
+
+/* Outline .cbtn styling */
+.cbtn.outline {
+    background-color: transparent;
+    border: 2px solid #0056D6; /* Border color matches primary color */
+    color: #0056D6; /* Text color matches primary color */
+}
+
+.cbtn.outline:hover {
+    background-color: #0056D6; /* Fill with primary color on hover */
+    color: #fff; /* Text color changes to white */
+}
+
+/* Icon .cbtn styling */
+.cbtn.icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px; /* Space between icon and text */
+    padding: 10px 20px;
+}
+
+.cbtn.icon i {
+    font-size: 18px; /* Adjust icon size */
+}
+
+/* Small .cbtn styling */
+.cbtn.small {
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+/* Large .cbtn styling */
+.cbtn.large {
+    padding: 16px 32px;
+    font-size: 18px;
+}
+
+
+/* modal */
+.modal-content {
+    position: relative;
+    display: flex
+;
+    flex-direction: column;
+    width: 100%;
+    color: var(--bs-modal-color);
+    pointer-events: auto;
+    background-color: var(--bs-modal-bg);
+    background-clip: padding-box;
+    border: var(--bs-modal-border-width) solid var(--bs-modal-border-color);
+    border-radius: 32px;
+    outline: 0;
+    padding: 20px;
+}
+.modal-body{
+    font-size: 24px;
+    text-align: center;
+}
+ /* Container to control the size of the cropped image */
+ .logo-container {
+    height: 150px; /* Set the desired height (cropped height) */
+    overflow: hidden; /* Hide the excess parts of the image */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Image styling */
+.logo-container img {
+    width: 100%; /* Make the image fill the container width */
+    height: auto; /* Maintain aspect ratio */
+    object-fit: cover; /* Crop the image to fit the container */
+    object-position: center; /* Focus on the center of the image */
+}
