@@ -1,21 +1,20 @@
-from flask import Flask, request, jsonify,render_template
+from flask import Flask, request, jsonify, render_template
 from flask_mail import Mail, Message
 from dotenv import load_dotenv
 import os
+import uuid
 import sqlite3
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from flask_cors import CORS
+from fpdf import FPDF
 
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {
-    "origins": "*",  # Allow all origins
-    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # Allow specific methods
-    "allow_headers": ["Content-Type", "Authorization"],  # Allow specific headers
-}})
+CORS(app, resources={r"/*": {"origins": "*", "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"], "allow_headers": ["Content-Type", "Authorization"]}})
+
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
@@ -28,9 +27,6 @@ mail = Mail(app)
 
 # File upload configuration
 app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['ALLOWED_EXTENSIONS'] = {'pdf', 'jpg', 'jpeg', 'png'}
-
-# Ensure the upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # SQLite database configuration
@@ -39,60 +35,39 @@ DATABASE = 'registrations.db'
 def get_db_connection():
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
-    conn.execute('PRAGMA journal_mode=WAL;')  # Enable WAL mode
+    conn.execute('PRAGMA journal_mode=WAL;')
     return conn
 
 def close_db(conn):
     if conn:
         conn.close()
 
-def init_db():
-    with app.app_context():
-        conn = get_db_connection()
-        conn.execute('''
-            CREATE TABLE IF NOT EXISTS registrations (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                businessType TEXT NOT NULL,
-                companyName TEXT NOT NULL,
-                dbaName TEXT,
-                gln TEXT,
-                shippingAddress TEXT NOT NULL,
-                shippingSuite TEXT,
-                shippingCity TEXT NOT NULL,
-                shippingState TEXT NOT NULL,
-                shippingZip TEXT NOT NULL,
-                phone TEXT NOT NULL,
-                fax TEXT,
-                email TEXT NOT NULL,
-                billingSameAsShipping TEXT,
-                billingAddress TEXT,
-                billingSuite TEXT,
-                billingCity TEXT,
-                billingState TEXT,
-                billingZip TEXT,
-                ownerName TEXT NOT NULL,
-                secondOwnerName TEXT,
-                npiNumber TEXT NOT NULL,
-                picDriverLicense TEXT NOT NULL,
-                stateLicenseNumber TEXT NOT NULL,
-                deaLicenseNumber TEXT NOT NULL,
-                stateLicenseUpload TEXT NOT NULL,
-                deaLicenseUpload TEXT NOT NULL,
-                formImage TEXT,
-                formPdf TEXT,
-                agreeTerms INTEGER NOT NULL,
-                agreeText INTEGER NOT NULL,
-                signature TEXT NOT NULL,
-                signatureDate TEXT NOT NULL
-            )
-        ''')
-        conn.commit()
-        close_db(conn)
+def generate_pdf(form_data, file_paths):
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.cell(200, 10, txt="Registration Form Details", ln=True, align='C')
+    
+    items = list(form_data.items()) + [(k, os.path.basename(v)) for k, v in file_paths.items()]
+    half = len(items) // 2
+    col1, col2 = items[:half], items[half:]
+    
+    pdf.set_font("Arial", size=10)
+    pdf.cell(95, 10, "Field Name", border=1)
+    pdf.cell(95, 10, "Value", border=1, ln=1)
+    
+    for left, right in zip(col1, col2):
+        pdf.cell(95, 10, f"{left[0]}: {left[1]}", border=1)
+        pdf.cell(95, 10, f"{right[0]}: {right[1]}", border=1, ln=1)
+    
+    if len(col1) > len(col2):
+        pdf.cell(95, 10, f"{col1[-1][0]}: {col1[-1][1]}", border=1, ln=1)
+    
+    pdf_filename = f"uploads/registration_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
+    pdf.output(pdf_filename)
+    return pdf_filename
 
-init_db()
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 
 @app.route('/')
@@ -102,28 +77,24 @@ def home():
 
 @app.route('/submit-registration', methods=['POST'])
 def submit_registration():
-    print("Received  form req....")
     conn = None
     try:
-        # Handle form data and files
-        form_data = {key: request.form.get(key) for key in request.form}
-        files = {key: request.files.get(key) for key in request.files}
-
-        # Save files and get their paths
+        form_data = {key: request.form.get(key, '') for key in request.form}
+        files = {key: request.files.get(key) for key in request.files if request.files.get(key) and request.files.get(key).filename}
+        
+        # Process checkbox fields
+        agree_terms = 1 if form_data.get('agreeTerms') == 'on' else 0
+        agree_text = 1 if form_data.get('agreeText') == 'on' else 0
+        
         file_paths = {}
         for key, file in files.items():
-            if file and allowed_file(file.filename):
-                timestamp = datetime.now().strftime('%Y%m%d%H%M%S%f')
-                filename = f"{timestamp}_{secure_filename(file.filename)}"
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(file_path)
-                file_paths[key] = file_path
-
-        # Ensure both attachments are uploaded
-        if 'formImage' not in file_paths or 'formPdf' not in file_paths:
-            return jsonify({"error": "Both formImage and formPdf files are required"}), 400
-
-        # Insert data into the database
+            filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{secure_filename(file.filename)}"
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+            file_paths[key] = file_path
+        
+        pdf_path = generate_pdf(form_data, file_paths)
+        
         conn = get_db_connection()
         conn.execute('''
             INSERT INTO registrations (
@@ -131,45 +102,30 @@ def submit_registration():
                 shippingState, shippingZip, phone, fax, email, billingSameAsShipping, billingAddress,
                 billingSuite, billingCity, billingState, billingZip, ownerName, secondOwnerName, npiNumber,
                 picDriverLicense, stateLicenseNumber, deaLicenseNumber, stateLicenseUpload, deaLicenseUpload,
-                formImage, formPdf, agreeTerms, agreeText, signature, signatureDate
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                agreeTerms, agreeText, signature, signatureDate
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
-            form_data['businessType'], form_data['companyName'], form_data['dbaName'], form_data['gln'],
-            form_data['shippingAddress'], form_data['shippingSuite'], form_data['shippingCity'],
-            form_data['shippingState'], form_data['shippingZip'], form_data['phone'], form_data['fax'],
-            form_data['email'], form_data['billingSameAsShipping'], form_data['billingAddress'],
-            form_data['billingSuite'], form_data['billingCity'], form_data['billingState'],
-            form_data['billingZip'], form_data['ownerName'], form_data['secondOwnerName'],
-            form_data['npiNumber'], file_paths.get('picDriverLicense'), form_data['stateLicenseNumber'],
-            form_data['deaLicenseNumber'], file_paths.get('stateLicenseUpload'), file_paths.get('deaLicenseUpload'),
-            file_paths['formImage'], file_paths['formPdf'],
-            1 if form_data.get('agreeTerms') == 'on' else 0,
-            1 if form_data.get('agreeText') == 'on' else 0,
-            form_data['signature'], form_data['signatureDate']
+            form_data.get('businessType', ''), form_data.get('companyName', ''), form_data.get('dbaName', ''),
+            form_data.get('gln', ''), form_data.get('shippingAddress', ''), form_data.get('shippingSuite', ''),
+            form_data.get('shippingCity', ''), form_data.get('shippingState', ''), form_data.get('shippingZip', ''),
+            form_data.get('phone', ''), form_data.get('fax', ''), form_data.get('email', ''),
+            form_data.get('billingSameAsShipping', ''), form_data.get('billingAddress', ''), form_data.get('billingSuite', ''),
+            form_data.get('billingCity', ''), form_data.get('billingState', ''), form_data.get('billingZip', ''),
+            form_data.get('ownerName', ''), form_data.get('secondOwnerName', ''), form_data.get('npiNumber', ''),
+            file_paths.get('picDriverLicense', ''), form_data.get('stateLicenseNumber', ''),
+            form_data.get('deaLicenseNumber', ''), file_paths.get('stateLicenseUpload', ''), file_paths.get('deaLicenseUpload', ''),
+            agree_terms, agree_text,
+            form_data.get('signature', ''), form_data.get('signatureDate', '')
         ))
         conn.commit()
-
-        # Email the form data
-        email_body = f"""
-        <h2>Registration Form Submission</h2>
-        <ul>
-            {''.join([f"<li><strong>{key}:</strong> {value}</li>" for key, value in form_data.items()])}
-        </ul>
-        """
+        
         msg = Message("New Registration Submission", sender=os.getenv('MAIL_USERNAME'), recipients=[form_data['email']])
-        msg.html = email_body
-
-        # Attach the formImage and formPdf files to the email
-        with open(file_paths['formImage'], 'rb') as img_file:
-            msg.attach(filename="formImage.jpg", content_type="image/jpeg", data=img_file.read())
-
-        with open(file_paths['formPdf'], 'rb') as pdf_file:
-            msg.attach(filename="formPdf.pdf", content_type="application/pdf", data=pdf_file.read())
-
+        msg.body = "Please find the attached registration details."
+        with open(pdf_path, 'rb') as pdf_file:
+            msg.attach(filename="registragittion_details.pdf", content_type="application/pdf", data=pdf_file.read())
         mail.send(msg)
-
+        
         return jsonify({"message": "Registration successful and email sent"}), 200
-
     except Exception as e:
         if conn:
             conn.rollback()
