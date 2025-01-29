@@ -51,7 +51,7 @@ def generate_pdf(form_data, file_paths):
     pdf.set_font("Arial", size=12)
     
     # Add logo with specific width and height, centered
-    logo_width = 50
+    logo_width = 70
     logo_height = 30
     pdf.image('logoc.png', x=(pdf.w - logo_width) / 2, y=10, w=logo_width, h=logo_height)
     
