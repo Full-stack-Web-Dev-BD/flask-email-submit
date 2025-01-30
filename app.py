@@ -208,6 +208,8 @@ def submit_registration():
         
         return jsonify({"message": "Registration successful and email sent"}), 200
     except Exception as e:
+        print(e)
+        print(str(e))
         if conn:
             conn.rollback()
         return jsonify({"error": str(e)}), 500
