@@ -191,8 +191,15 @@ def submit_registration():
         conn.commit()
         
         # Send email with all PDFs attached
-        msg = Message("New Registration Submission", sender=os.getenv('MAIL_USERNAME'), recipients=[form_data['email']])
+        msg = Message(
+            "New Registration Submission", 
+            sender=os.getenv('MAIL_USERNAME'), 
+            recipients=["info@americanapd.com", "aramouni@americanapd.com"]
+        )
         msg.body = "A new customer has submitted their registration form. The details are attached."
+
+        # Send the email
+        mail.send(msg)
         
         # Attach all PDFs
         for pdf_path in pdf_paths:
