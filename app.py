@@ -194,13 +194,10 @@ def submit_registration():
         msg = Message(
             "New Registration Submission", 
             sender=os.getenv('MAIL_USERNAME'), 
-            recipients=["info@americanapd.com", "aramouni@americanapd.com"]
+            recipients=["softdev.alamin@gmail.com", "alaminprogramerr@gmail.com"]
         )
         msg.body = "A new customer has submitted their registration form. The details are attached."
 
-        # Send the email
-        mail.send(msg)
-        
         # Attach all PDFs
         for pdf_path in pdf_paths:
             with open(pdf_path, 'rb') as pdf_file:
