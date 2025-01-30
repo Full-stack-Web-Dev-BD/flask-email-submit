@@ -133,6 +133,7 @@ def convert_image_to_pdf(image_path, pdf_path):
 
 @app.route('/submit-registration', methods=['POST'])
 def submit_registration():
+    print("Registering new form")
     conn = None
     try:
         form_data = {key: request.form.get(key, '') for key in request.form}
@@ -203,9 +204,7 @@ def submit_registration():
         for pdf_path in pdf_paths:
             with open(pdf_path, 'rb') as pdf_file:
                 msg.attach(filename=os.path.basename(pdf_path), content_type="application/pdf", data=pdf_file.read())
-        
         mail.send(msg)
-        
         return jsonify({"message": "Registration successful and email sent"}), 200
     except Exception as e:
         print(e)
