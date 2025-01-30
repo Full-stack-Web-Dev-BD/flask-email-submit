@@ -122,14 +122,27 @@ def generate_pdf(form_data, file_paths):
 def home():
     return render_template('index.html')
 
-
-# Function to convert an image to PDF
 def convert_image_to_pdf(image_path, pdf_path):
+    # Open the image
     img = Image.open(image_path)
+
+    # Convert to 8-bit (if it's 16-bit)
+    if img.mode not in ("RGB", "RGBA"):  # Ensure it's a format FPDF supports
+        img = img.convert("RGB")
+
+    # Save the converted image temporarily
+    temp_image_path = "temp_converted_image.png"
+    img.save(temp_image_path)
+
+    # Create the PDF
     pdf = FPDF(unit="pt", format=[img.width, img.height])
     pdf.add_page()
-    pdf.image(image_path, 0, 0, img.width, img.height)
+    pdf.image(temp_image_path, 0, 0, img.width, img.height)
+
+    # Save the PDF
     pdf.output(pdf_path)
+
+    print("PDF created successfully!")
 
 @app.route('/submit-registration', methods=['POST'])
 def submit_registration():
