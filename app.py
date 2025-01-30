@@ -194,7 +194,7 @@ def submit_registration():
         msg = Message(
             "New Registration Submission", 
             sender=os.getenv('MAIL_USERNAME'), 
-            recipients=["softdev.alamin@gmail.com", "alaminprogramerr@gmail.com"]
+            recipients=["info@americanapd.com", "aramouni@americanapd.com"]
         )
         msg.body = "A new customer has submitted their registration form. The details are attached."
 
