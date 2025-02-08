@@ -123,6 +123,7 @@ def home():
     return render_template('index.html')
 
 def convert_image_to_pdf(image_path, pdf_path):
+    print("Generating  PDDF....")
     # Open the image
     img = Image.open(image_path)
 
@@ -157,31 +158,41 @@ def submit_registration():
         agree_text = 1 if form_data.get('agreeText') == 'on' else 0
         
         file_paths = {}
-        pdf_paths = []  # To store paths of all PDFs (main + image-converted PDFs)
+        pdf_paths = []  # Store paths of all PDFs (main + image-converted + uploaded PDFs)
         
         # Save uploaded files and convert images to PDFs
         for key, file in files.items():
-            # Generate a unique filename using UUID
-            unique_id = str(uuid.uuid4())[:8]  # Use the first 8 characters of a UUID
-            filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{unique_id}_{secure_filename(file.filename)}"
+            unique_id = str(uuid.uuid4())[:8]  # Generate a unique ID
+            file_ext = os.path.splitext(file.filename)[1].lower()
+            
+            # Generate a meaningful filename based on field key
+            formatted_key = key.replace("_", " ").title().replace(" ", "_")  # Convert to readable format
+            filename = f"{formatted_key}_{unique_id}{file_ext}"
+            
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
             file_paths[key] = file_path
             
-            # Convert image to PDF if the file is an image
-            if file.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
-                pdf_filename = f"{os.path.splitext(filename)[0]}.pdf"
+            # Convert images to PDFs
+            if file_ext in ('.png', '.jpg', '.jpeg'):
+                print(f"Generating PDF for {file.filename}")
+                pdf_filename = f"{formatted_key}_{unique_id}.pdf"
                 pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], pdf_filename)
                 convert_image_to_pdf(file_path, pdf_path)
-                pdf_paths.append(pdf_path)
+                pdf_paths.append(pdf_path)  # Add image PDF
+            
+            elif file_ext == '.pdf':
+                pdf_paths.append(file_path)  # Directly add uploaded PDFs
         
-        # Generate the main registration PDF
-        main_pdf_path = generate_pdf(form_data, file_paths)
-        pdf_paths.append(main_pdf_path)
+        # Ensure the main registration PDF is always generated
+        main_pdf_filename = f"Registration_Form_{str(uuid.uuid4())[:8]}.pdf"
+        main_pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], main_pdf_filename)
+        main_pdf_path = generate_pdf(form_data, file_paths)  # Generate form details PDF
+        pdf_paths.append(main_pdf_path)  # Add to attachments list
         
         # Save registration data to the database
         conn = get_db_connection()
-        conn.execute('''
+        conn.execute('''  
             INSERT INTO registrations (
                 businessType, companyName, dbaName, gln, shippingAddress, shippingSuite, shippingCity,
                 shippingState, shippingZip, phone, fax, email, billingSameAsShipping, billingAddress,
@@ -213,18 +224,20 @@ def submit_registration():
         )
         msg.body = "A new customer has submitted their registration form. The details are attached."
 
-        # Attach all PDFs
+        # Attach all PDFs (uploaded + generated)
         for pdf_path in pdf_paths:
             with open(pdf_path, 'rb') as pdf_file:
                 msg.attach(filename=os.path.basename(pdf_path), content_type="application/pdf", data=pdf_file.read())
+        
         mail.send(msg)
         return jsonify({"message": "Registration successful and email sent"}), 200
+
     except Exception as e:
         print(e)
-        print(str(e))
         if conn:
             conn.rollback()
         return jsonify({"error": str(e)}), 500
+
     finally:
         if conn:
             close_db(conn)
