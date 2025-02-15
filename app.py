@@ -255,7 +255,204 @@ def submit_registration():
         if conn:
             close_db(conn)
 
+
+
+
+
+# user login register 
+
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_cors import CORS
+# Database configuration
+_DATABASE = 'users.db'
+
+def get_db_connection():
+    conn = sqlite3.connect(_DATABASE)
+    conn.row_factory = sqlite3.Row
+    conn.execute('PRAGMA journal_mode=WAL;')
+    return conn
+
+def close_db(conn):
+    if conn:
+        conn.close()
+
+# Create user table if not exists
+def create_user_table():
+    conn = get_db_connection()
+    conn.execute('''CREATE TABLE IF NOT EXISTS users (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        username TEXT UNIQUE NOT NULL,
+                        email TEXT UNIQUE NOT NULL,
+                        password TEXT NOT NULL
+                    )''')
+    conn.commit()
+    close_db(conn)
+
+create_user_table()
+
+
+@app.route('/register', methods=['POST'])
+def register():
+    try:
+        data = request.get_json()
+        required_fields = ['username', 'email', 'password']
+        missing_fields = [field for field in required_fields if not data.get(field)]
+
+        if missing_fields:
+            return jsonify({'error': 'Missing required fields', 'missing_fields': missing_fields}), 400
+
+        username = data['username']
+        email = data['email']
+        hashed_password = generate_password_hash(data['password'])
+
+        with get_db_connection() as conn:
+            # Check if username or email already exists
+            existing_user = conn.execute(
+                "SELECT id FROM users WHERE username = ? OR email = ?", 
+                (username, email)
+            ).fetchone()
+
+            if existing_user:
+                return jsonify({'error': 'Username or Email already exists'}), 400
+
+            # Insert new user
+            conn.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+                         (username, email, hashed_password))
+            conn.commit()
+
+        return jsonify({'message': 'User registered successfully'}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        password = data.get('password')
+
+        if not email or not password:
+            return jsonify({'error': 'Email and password are required'}), 400
+
+        conn = get_db_connection()
+        user = conn.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
+        close_db(conn)
+
+        if user and check_password_hash(user['password'], password):
+            return jsonify({'message': 'Login successful', 'username': user['username']}), 200
+        else:
+            return jsonify({'error': 'Invalid email or password'}), 401
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# order placing 
+# Create or open SQLite database
+_DATABASE = 'users.db'
+
+def init_db():
+    conn = sqlite3.connect('orders.db')
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            product_name TEXT NOT NULL,
+            quantity INTEGER NOT NULL,
+            product_category TEXT,
+            contact_details TEXT NOT NULL,
+            delivery_date TEXT,
+            shipping_address TEXT,
+            additional_notes TEXT
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Send an email to info@order.com when an order is placed
+def send_email(product_name, quantity, product_category, contact_details, delivery_date, shipping_address, additional_notes):
+    msg = Message("New Order Received",
+                    sender=os.getenv('MAIL_USERNAME'), 
+                    recipients=["alaminprogramerr@gmail.com"])  # Receiver's email
+    msg.body = f"""
+    A new order has been placed with the following details:
+
+    Product Name: {product_name}
+    Quantity: {quantity}
+    Product Category: {product_category if product_category else 'N/A'}
+    Contact Details: {contact_details}
+    Delivery Date: {delivery_date if delivery_date else 'N/A'}
+    Shipping Address: {shipping_address if shipping_address else 'N/A'}
+    Additional Notes: {additional_notes if additional_notes else 'N/A'}
+    """
+    mail.send(msg)
+# API Endpoint for order booking
+@app.route('/place-order', methods=['POST'])
+def place_order():
+    data = request.get_json()
+
+    product_name = data.get('product_name')
+    quantity = data.get('quantity')
+    product_category = data.get('product_category')
+    contact_details = data.get('contact_details')
+    delivery_date = data.get('delivery_date')
+    shipping_address = data.get('shipping_address')
+    additional_notes = data.get('additional_notes')
+
+    if not product_name or not quantity or not contact_details:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # Save order to SQLite database
+    conn = sqlite3.connect('orders.db')
+    c = conn.cursor()
+    c.execute('''
+        INSERT INTO orders (product_name, quantity, product_category, contact_details, delivery_date, shipping_address, additional_notes)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', (product_name, quantity, product_category, contact_details, delivery_date, shipping_address, additional_notes))
+    conn.commit()
+    conn.close()
+
+    # Send email notification
+    send_email(product_name, quantity, product_category, contact_details, delivery_date, shipping_address, additional_notes)
+
+    return jsonify({"message": "Order placed successfully"}), 201
+
+
+def send_contact_email(name, email, phone, message):
+    msg = Message("New Contact Us Message",
+                    sender=os.getenv('MAIL_USERNAME'), 
+                    recipients=["alaminprogramerr@gmail.com"])  # Receiver's email
+    msg.body = f"""
+    You have received a new message from the Contact Us form:
+
+    Name: {name}
+    Email: {email}
+    Phone: {phone}
+    Message: {message}
+    """
+    mail.send(msg)
+
+# API Endpoint for Contact Us form
+@app.route('/contact-us', methods=['POST'])
+def contact_us():
+    data = request.get_json()
+
+    name = data.get('name')
+    email = data.get('email')
+    phone = data.get('phone')
+    message = data.get('message')
+
+    if not name or not email or not phone or not message:
+        return jsonify({"error": "All fields are required"}), 400
+
+    # Send the contact email
+    send_contact_email(name, email, phone, message)
+
+    return jsonify({"message": "Message sent successfully"}), 200
+
 if __name__ == '__main__':
     # Use Heroku's dynamically assigned port
+    init_db()
+
     port = int(os.environ.get('PORT', 5000))  # Default to 5000 for local testing
     app.run(host='0.0.0.0', port=port, debug=True)
