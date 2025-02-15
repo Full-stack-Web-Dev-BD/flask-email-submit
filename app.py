@@ -276,26 +276,24 @@ def close_db(conn):
     if conn:
         conn.close()
 
-# Create user table if not exists
 def create_user_table():
     conn = get_db_connection()
     conn.execute('''CREATE TABLE IF NOT EXISTS users (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         username TEXT UNIQUE NOT NULL,
                         email TEXT UNIQUE NOT NULL,
-                        password TEXT NOT NULL
+                        password TEXT NOT NULL,
+                        address TEXT NOT NULL,
+                        phone TEXT NOT NULL
                     )''')
     conn.commit()
     close_db(conn)
-
-create_user_table()
-
 
 @app.route('/register', methods=['POST'])
 def register():
     try:
         data = request.get_json()
-        required_fields = ['username', 'email', 'password']
+        required_fields = ['username', 'email', 'password', 'address', 'phone']
         missing_fields = [field for field in required_fields if not data.get(field)]
 
         if missing_fields:
@@ -303,6 +301,8 @@ def register():
 
         username = data['username']
         email = data['email']
+        address = data['address']
+        phone = data['phone']
         hashed_password = generate_password_hash(data['password'])
 
         with get_db_connection() as conn:
@@ -315,15 +315,15 @@ def register():
             if existing_user:
                 return jsonify({'error': 'Username or Email already exists'}), 400
 
-            # Insert new user
-            conn.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
-                         (username, email, hashed_password))
+            # Insert new user with address and phone
+            conn.execute('''INSERT INTO users (username, email, password, address, phone) 
+                            VALUES (?, ?, ?, ?, ?)''',
+                         (username, email, hashed_password, address, phone))
             conn.commit()
 
         return jsonify({'message': 'User registered successfully'}), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 
 
 @app.route('/login', methods=['POST'])
