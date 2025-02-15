@@ -129,6 +129,8 @@ def home():
     return render_template('index.html')
 
 
+
+
 def convert_image_to_pdf(image_path, pdf_path):
     print("Generating PDF...")
 
@@ -450,6 +452,39 @@ def contact_us():
 
     return jsonify({"message": "Message sent successfully"}), 200
 
+# partnership
+def send_company_inquiry_email(company_name, email, phone, website, message):
+    msg = Message("New Company Inquiry",
+                    sender=os.getenv('MAIL_USERNAME'), 
+                    recipients=["alaminprogramerr@gmail.com"])  # Receiver's email
+    msg.body = f"""
+    You have received a new company inquiry:
+
+    Company Name: {company_name}
+    Email: {email}
+    Phone: {phone}
+    Website: {website if website else 'Not provided'}
+    Message: {message}
+    """
+    mail.send(msg)
+
+@app.route('/partnership', methods=['POST'])
+def company_inquiry():
+    data = request.get_json()
+
+    company_name = data.get('company_name')
+    email = data.get('email')
+    phone = data.get('phone')
+    website = data.get('website')  # Optional
+    message = data.get('message')
+
+    if not company_name or not email or not phone or not message:
+        return jsonify({"error": "Company Name, Email, Phone, and Message are required"}), 400
+
+    # Send the inquiry email
+    send_company_inquiry_email(company_name, email, phone, website, message)
+
+    return jsonify({"message": "Inquiry sent successfully"}), 200
 if __name__ == '__main__':
     # Use Heroku's dynamically assigned port
     init_db()
