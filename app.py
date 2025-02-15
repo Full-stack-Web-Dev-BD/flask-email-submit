@@ -453,6 +453,6 @@ def contact_us():
 if __name__ == '__main__':
     # Use Heroku's dynamically assigned port
     init_db()
-
+    create_user_table()
     port = int(os.environ.get('PORT', 5000))  # Default to 5000 for local testing
     app.run(host='0.0.0.0', port=port, debug=True)
