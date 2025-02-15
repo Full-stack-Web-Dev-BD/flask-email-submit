@@ -10,11 +10,17 @@ from flask_cors import CORS
 from fpdf import FPDF
 from PIL import Image  # For image processing
 
+import os
+from PIL import Image
+from fpdf import FPDF
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*", "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"], "allow_headers": ["Content-Type", "Authorization"]}})
+
+
+
 
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
@@ -56,16 +62,16 @@ def generate_pdf(form_data, file_paths):
     # Add logo with specific width and height, centered
     logo_width = 70
     logo_height = 30
-    pdf.image('logoc.png', x=(pdf.w - logo_width) / 2, y=10, w=logo_width, h=logo_height)
+    pdf.image('logo.png', x=(pdf.w - logo_width) / 2, y=10, w=logo_width, h=logo_height)
     
     # Add section with company information (left-aligned)
     pdf.ln(30)  # Move below the logo (reduced spacing)
     pdf.set_font("Arial", size=10)
     pdf.cell(0, 5, txt="American Pharmaceutical Distributors", ln=True, align='L')  # Reduced cell height
-    pdf.cell(0, 5, txt="123 Main Street, Suite 456", ln=True, align='L')
-    pdf.cell(0, 5, txt="City, State, ZIP Code", ln=True, align='L')
+    pdf.cell(0, 5, txt="6650 Highland Rd Suite 302", ln=True, align='L')
+    pdf.cell(0, 5, txt="Waterford MI 48327", ln=True, align='L')
     pdf.cell(0, 5, txt="Email: info@americanapd.com", ln=True, align='L')
-    pdf.cell(0, 5, txt="Phone: (123) 456-7890", ln=True, align='L')
+    pdf.cell(0, 5, txt="Phone: (855) 469-2300", ln=True, align='L')
     
     # Add PDF title (centered and bold)
     pdf.ln(8)  # Reduced spacing
@@ -122,8 +128,10 @@ def generate_pdf(form_data, file_paths):
 def home():
     return render_template('index.html')
 
+
 def convert_image_to_pdf(image_path, pdf_path):
-    print("Generating  PDDF....")
+    print("Generating PDF...")
+
     # Open the image
     img = Image.open(image_path)
 
@@ -131,8 +139,12 @@ def convert_image_to_pdf(image_path, pdf_path):
     if img.mode not in ("RGB", "RGBA"):  # Ensure it's a format FPDF supports
         img = img.convert("RGB")
 
-    # Save the converted image temporarily
-    temp_image_path = "temp_converted_image.png"
+    # Create a temp folder if it doesn't exist
+    temp_folder = "temp"
+    os.makedirs(temp_folder, exist_ok=True)
+
+    # Save the converted image inside the temp folder
+    temp_image_path = os.path.join(temp_folder, "temp_converted_image.png")
     img.save(temp_image_path)
 
     # Create the PDF
@@ -144,6 +156,7 @@ def convert_image_to_pdf(image_path, pdf_path):
     pdf.output(pdf_path)
 
     print("PDF created successfully!")
+
 
 @app.route('/submit-registration', methods=['POST'])
 def submit_registration():
@@ -219,8 +232,8 @@ def submit_registration():
         msg = Message(
             "New Registration Submission", 
             sender=os.getenv('MAIL_USERNAME'), 
-            # recipients=["softdev.alamin@gmail.com", "alaminprogramerr@gmail.com"]
-            recipients=["info@americanapd.com", "aramouni@americanapd.com"]
+            recipients=["softdev.alamin@gmail.com", "alaminprogramerr@gmail.com"]
+            # recipients=["info@americanapd.com", "aramouni@americanapd.com"]
         )
         msg.body = "A new customer has submitted their registration form. The details are attached."
 
