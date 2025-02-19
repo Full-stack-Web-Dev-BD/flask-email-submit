@@ -349,30 +349,32 @@ def login():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# order placing 
-# Create or open SQLite database
-_DATABASE = 'users.db'
+        
+# order api start -------
+# Database configuration
+_DATABASE = 'orders.db'
 
 def init_db():
-    conn = sqlite3.connect('orders.db')
+    conn = sqlite3.connect(_DATABASE)
     c = conn.cursor()
     c.execute('''
         CREATE TABLE IF NOT EXISTS orders (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             product_name TEXT NOT NULL,
-            quantity INTEGER NOT NULL,
-            product_category TEXT,
-            contact_details TEXT NOT NULL,
-            delivery_date TEXT,
-            shipping_address TEXT,
-            additional_notes TEXT
+            ndc TEXT NOT NULL,
+            ndc_specific TEXT,
+            quantity_used_monthly INTEGER,
+            current_price REAL,
+            address TEXT NOT NULL,
+            direct_phone TEXT NOT NULL,
+            your_name TEXT NOT NULL
         )
     ''')
     conn.commit()
     conn.close()
-
 # Send an email to info@order.com when an order is placed
-def send_email(product_name, quantity, product_category, contact_details, delivery_date, shipping_address, additional_notes):
+def send_email(product_name, ndc, ndc_specific, quantity_used_monthly, 
+               current_price, address, direct_phone, your_name):
     msg = Message("New Order Received",
                     sender=os.getenv('MAIL_USERNAME'), 
                     recipients=["alaminprogramerr@gmail.com"])  # Receiver's email
@@ -380,59 +382,69 @@ def send_email(product_name, quantity, product_category, contact_details, delive
     A new order has been placed with the following details:
 
     Product Name: {product_name}
-    Quantity: {quantity}
-    Product Category: {product_category if product_category else 'N/A'}
-    Contact Details: {contact_details}
-    Delivery Date: {delivery_date if delivery_date else 'N/A'}
-    Shipping Address: {shipping_address if shipping_address else 'N/A'}
-    Additional Notes: {additional_notes if additional_notes else 'N/A'}
+    NDC: {ndc}
+    NDC Specific: {ndc_specific if ndc_specific else 'N/A'}
+    Quantity Used Monthly: {quantity_used_monthly if quantity_used_monthly else 'N/A'}
+    Current/Most Recent Price: {current_price if current_price else 'N/A'}
+    Address: {address}
+    Direct Phone Number: {direct_phone}
+    Your Name: {your_name}
     """
     mail.send(msg)
-# API Endpoint for order booking
+
 @app.route('/place-order', methods=['POST'])
 def place_order():
     data = request.get_json()
 
+    # Extract fields
     product_name = data.get('product_name')
-    quantity = data.get('quantity')
-    product_category = data.get('product_category')
-    contact_details = data.get('contact_details')
-    delivery_date = data.get('delivery_date')
-    shipping_address = data.get('shipping_address')
-    additional_notes = data.get('additional_notes')
+    ndc = data.get('ndc')
+    ndc_specific = data.get('ndc_specific')
+    quantity_used_monthly = data.get('quantity_used_monthly')
+    current_price = data.get('current_price')
+    address = data.get('address')
+    direct_phone = data.get('direct_phone')
+    your_name = data.get('your_name')
 
-    if not product_name or not quantity or not contact_details:
-        return jsonify({"error": "Missing required fields"}), 400
+    # Validate mandatory fields
+    mandatory_fields = {
+        'product_name': product_name,
+        'ndc': ndc,
+        'address': address,
+        'direct_phone': direct_phone,
+        'your_name': your_name
+    }
+    
+    missing = [field for field, value in mandatory_fields.items() if not value]
+    if missing:
+        return jsonify({"error": f"Missing required fields: {', '.join(missing)}"}), 400
 
-    # Save order to SQLite database
-    conn = sqlite3.connect('orders.db')
+    # Save to database
+    conn = sqlite3.connect(_DATABASE)
     c = conn.cursor()
     c.execute('''
-        INSERT INTO orders (product_name, quantity, product_category, contact_details, delivery_date, shipping_address, additional_notes)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    ''', (product_name, quantity, product_category, contact_details, delivery_date, shipping_address, additional_notes))
+        INSERT INTO orders (
+            product_name, ndc, ndc_specific,
+            quantity_used_monthly, current_price,
+            address, direct_phone, your_name
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (
+        product_name, ndc, ndc_specific,
+        quantity_used_monthly, current_price,
+        address, direct_phone, your_name
+    ))
     conn.commit()
     conn.close()
 
     # Send email notification
-    send_email(product_name, quantity, product_category, contact_details, delivery_date, shipping_address, additional_notes)
+    send_email(
+        product_name, ndc, ndc_specific,
+        quantity_used_monthly, current_price,
+        address, direct_phone, your_name
+    )
 
     return jsonify({"message": "Order placed successfully"}), 201
-
-
-def send_contact_email(name, email, phone, message):
-    msg = Message("New Contact Us Message",
-                    sender=os.getenv('MAIL_USERNAME'), 
-                    recipients=["alaminprogramerr@gmail.com"])  # Receiver's email
-    msg.body = f"""
-    You have received a new message from the Contact Us form:
-
-    Name: {name}
-    Email: {email}
-    Phone: {phone}
-    Message: {message}
-    """
-    mail.send(msg)
 
 # API Endpoint for Contact Us form
 @app.route('/contact-us', methods=['POST'])
