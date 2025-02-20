@@ -211,8 +211,8 @@ def submit_registration():
         msg = Message(
             "New Registration Submission", 
             sender=os.getenv('MAIL_USERNAME'), 
-            recipients=["softdev.alamin@gmail.com", "alaminprogramerr@gmail.com"]
-            # recipients=["info@americanapd.com", "aramouni@americanapd.com"]
+            # recipients=["softdev.alamin@gmail.com", "alaminprogramerr@gmail.com"]
+            recipients=["info@americanapd.com", "aramouni@americanapd.com"]
         )
         msg.body = "A new customer has submitted their registration form. The details are attached."
 
@@ -354,7 +354,8 @@ def send_email(product_name, ndc, ndc_specific, quantity_used_monthly,
                current_price, address, direct_phone, your_name):
     msg = Message("New Order Received",
                     sender=os.getenv('MAIL_USERNAME'), 
-                    recipients=["alaminprogramerr@gmail.com"])  # Receiver's email
+                    recipients=["info@americanapd.com"])  # Receiver's email
+                    # recipients=["alaminprogramerr@gmail.com"])  # Receiver's email
     msg.body = f"""
     A new order has been placed with the following details:
 
@@ -445,7 +446,8 @@ def contact_us():
 def send_company_inquiry_email(company_name, email, phone, website, message):
     msg = Message("New Company Inquiry",
                     sender=os.getenv('MAIL_USERNAME'), 
-                    recipients=["alaminprogramerr@gmail.com"])  # Receiver's email
+                    recipients=["info@americanapd.com"])  # Receiver's email
+                    # recipients=["alaminprogramerr@gmail.com"])  # Receiver's email
     msg.body = f"""
     You have received a new company inquiry:
 
