@@ -39,6 +39,7 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 # SQLite database configuration
 DATABASE = 'registrations.db'
 
+
 def get_db_connection():
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
@@ -205,37 +206,13 @@ def submit_registration():
         main_pdf_path = generate_pdf(form_data, file_paths)  # Generate form details PDF
         pdf_paths.append(main_pdf_path)  # Add to attachments list
         
-        # Save registration data to the database
-        conn = get_db_connection()
-        conn.execute('''  
-            INSERT INTO registrations (
-                businessType, companyName, dbaName, gln, shippingAddress, shippingSuite, shippingCity,
-                shippingState, shippingZip, phone, fax, email, billingSameAsShipping, billingAddress,
-                billingSuite, billingCity, billingState, billingZip, ownerName, secondOwnerName, npiNumber,
-                picDriverLicense, stateLicenseNumber, deaLicenseNumber, stateLicenseUpload, deaLicenseUpload,
-                agreeTerms, agreeText, signature, signatureDate
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            form_data.get('businessType', ''), form_data.get('companyName', ''), form_data.get('dbaName', ''),
-            form_data.get('gln', ''), form_data.get('shippingAddress', ''), form_data.get('shippingSuite', ''),
-            form_data.get('shippingCity', ''), form_data.get('shippingState', ''), form_data.get('shippingZip', ''),
-            form_data.get('phone', ''), form_data.get('fax', ''), form_data.get('email', ''),
-            form_data.get('billingSameAsShipping', ''), form_data.get('billingAddress', ''), form_data.get('billingSuite', ''),
-            form_data.get('billingCity', ''), form_data.get('billingState', ''), form_data.get('billingZip', ''),
-            form_data.get('ownerName', ''), form_data.get('secondOwnerName', ''), form_data.get('npiNumber', ''),
-            file_paths.get('picDriverLicense', ''), form_data.get('stateLicenseNumber', ''),
-            form_data.get('deaLicenseNumber', ''), file_paths.get('stateLicenseUpload', ''), file_paths.get('deaLicenseUpload', ''),
-            agree_terms, agree_text,
-            form_data.get('signature', ''), form_data.get('signatureDate', '')
-        ))
-        conn.commit()
         
         # Send email with all PDFs attached
         msg = Message(
             "New Registration Submission", 
             sender=os.getenv('MAIL_USERNAME'), 
-            # recipients=["softdev.alamin@gmail.com", "alaminprogramerr@gmail.com"]
-            recipients=["info@americanapd.com", "aramouni@americanapd.com"]
+            recipients=["softdev.alamin@gmail.com", "alaminprogramerr@gmail.com"]
+            # recipients=["info@americanapd.com", "aramouni@americanapd.com"]
         )
         msg.body = "A new customer has submitted their registration form. The details are attached."
 
