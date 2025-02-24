@@ -424,6 +424,21 @@ def place_order():
 
     return jsonify({"message": "Order placed successfully"}), 201
 
+
+def send_contact_email(name, email, phone, message):
+    msg = Message("New Contact Inquiry",
+                  sender=os.getenv('MAIL_USERNAME'),
+                  recipients=["info@americanapd.com"])  # Receiver's email
+    msg.body = f"""
+    You have received a new contact inquiry:
+
+    Name: {name}
+    Email: {email}
+    Phone: {phone}
+    Message: {message}
+    """
+    mail.send(msg)
+
 # API Endpoint for Contact Us form
 @app.route('/contact-us', methods=['POST'])
 def contact_us():
