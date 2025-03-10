@@ -13,6 +13,8 @@ from PIL import Image  # For image processing
 import os
 from PIL import Image
 from fpdf import FPDF
+
+from pymongo import MongoClient
 # Load environment variables
 load_dotenv()
 
@@ -491,6 +493,86 @@ def company_inquiry():
     send_company_inquiry_email(company_name, email, phone, website, message)
 
     return jsonify({"message": "Inquiry sent successfully"}), 200
+
+
+
+
+    # ============== NOSTR============================
+
+
+# MongoDB URI and Client
+MONGO_URI = os.getenv('MONGO_URI', 'mongodb+srv://admin:ZCUxFbWAMB5WOJUJ@cluster0.3vqdhfr.mongodb.net/nostr?retryWrites=true&w=majority&appName=Cluster0')
+client = MongoClient(MONGO_URI)
+db = client.nostr
+
+# Invitation API to store invitation status
+@app.route('/api/invite', methods=['POST'])
+def create_invite():
+    try:
+        # Get data from the request
+        inviter = request.json.get('inviter')
+        invitee = request.json.get('invitee')
+        accepted = request.json.get('accepted', True)
+        channel_id = request.json.get('channelID')
+
+        if not inviter or not invitee or not channel_id:
+            return jsonify({"error": "Missing required fields"}), 400
+
+        # Ensure no duplicates of inviter + invitee under the same channelID
+        existing_invite = db.invites.find_one({
+            "inviter": inviter,
+            "invitee": invitee,
+            "channelID": channel_id
+        })
+
+        if existing_invite:
+            return jsonify({"error": "Invite already exists for this inviter and invitee in this channel"}), 400
+
+        # Store the invite with accepted status as True
+        invite_data = {
+            "inviter": inviter,
+            "invitee": invitee,
+            "accepted": True,
+            "channelID": channel_id,
+            "timestamp": datetime.now()
+        }
+        db.invites.insert_one(invite_data)
+
+        return jsonify({"message": "Invitation stored successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# API to fetch invitation status for multiple invitees
+@app.route('/api/invites', methods=['POST'])
+def get_invites():
+    try:
+        # Get invitee ids from the request
+        invitee_ids = request.json.get('invitees')
+        
+        if not invitee_ids or not isinstance(invitee_ids, list):
+            return jsonify({"error": "Invalid invitee list"}), 400
+
+        # Fetch the documents for the given invitee ids
+        invites = db.invites.find({
+            "invitee": {"$in": invitee_ids}
+        })
+
+        invites_list = []
+        for invite in invites:
+            invites_list.append({
+                "inviter": invite["inviter"],
+                "invitee": invite["invitee"],
+                "accepted": invite["accepted"],
+                "channelID": invite["channelID"],
+                "timestamp": invite["timestamp"]
+            })
+
+        return jsonify(invites_list), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+    # ============== NOSTR============================
+    
 if __name__ == '__main__':
     # Use Heroku's dynamically assigned port
     init_db()
