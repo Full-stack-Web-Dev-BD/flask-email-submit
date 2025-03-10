@@ -526,7 +526,7 @@ def create_invite():
         })
 
         if existing_invite:
-            return jsonify({"error": "Invite already exists for this inviter and invitee in this channel"}), 400
+            return jsonify({"error": "Invite already exists for this inviter and invitee in this channel"}), 200
 
         # Store the invite with accepted status as True
         invite_data = {
