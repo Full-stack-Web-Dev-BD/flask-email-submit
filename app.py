@@ -546,15 +546,21 @@ def create_invite():
 @app.route('/api/invites', methods=['POST'])
 def get_invites():
     try:
-        # Get invitee ids from the request
-        invitee_ids = request.json.get('invitees')
-        
+        # Get the invitee IDs and channel ID from the request
+        request_data = request.json
+        invitee_ids = request_data.get('invitees')
+        channel_id = request_data.get('channelID')
+
         if not invitee_ids or not isinstance(invitee_ids, list):
             return jsonify({"error": "Invalid invitee list"}), 400
+        
+        if not channel_id:
+            return jsonify({"error": "Channel ID is required"}), 400
 
-        # Fetch the documents for the given invitee ids
+        # Fetch the documents for the given invitee IDs and channel ID
         invites = db.invites.find({
-            "invitee": {"$in": invitee_ids}
+            "invitee": {"$in": invitee_ids},
+            "channelID": channel_id
         })
 
         invites_list = []
@@ -570,7 +576,7 @@ def get_invites():
         return jsonify(invites_list), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
     # ============== NOSTR============================
     
 if __name__ == '__main__':
