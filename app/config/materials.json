@@ -1,0 +1,218 @@
+{
+  "Steel DC01 / 1.0330": {
+    "1.0": {
+      "setup_price": 4.2,
+      "cost_factor": 0.935,
+      "loop_cost": 0.09,
+      "cost_per_m2": 10.56,
+      "in_stock": 1,
+      "index": 26
+    },
+    "1.2": {
+      "setup_price": 4.2,
+      "cost_factor": 0.935,
+      "loop_cost": 0.09,
+      "cost_per_m2": 13.2,
+      "in_stock": 1,
+      "index": 25
+    },
+    "1.5": {
+      "setup_price": 4.2,
+      "cost_factor": 0.935,
+      "loop_cost": 0.09,
+      "cost_per_m2": 16.45,
+      "in_stock": 1,
+      "index": 24
+    },
+    "2.0": {
+      "setup_price": 4.2,
+      "cost_factor": 0.935,
+      "loop_cost": 0.09,
+      "cost_per_m2": 18.3,
+      "in_stock": 1,
+      "index": 23
+    },
+    "3.0": {
+      "setup_price": 4.2,
+      "cost_factor": 0.935,
+      "loop_cost": 0.09,
+      "cost_per_m2": 34.25,
+      "in_stock": 1,
+      "index": 22
+    }
+  },
+  "Steel S235 / 1.0038": {
+    "4.0": {
+      "setup_price": 3.9,
+      "cost_factor": 0.998,
+      "loop_cost": 0.098,
+      "cost_per_m2": 32.0,
+      "in_stock": 1,
+      "index": 21
+    },
+    "5.0": {
+      "setup_price": 3.9,
+      "cost_factor": 0.932,
+      "loop_cost": 0.098,
+      "cost_per_m2": 38.23,
+      "in_stock": 1,
+      "index": 20
+    },
+    "6.0": {
+      "setup_price": 3.9,
+      "cost_factor": 0.932,
+      "loop_cost": 0.098,
+      "cost_per_m2": 41.958,
+      "in_stock": 1,
+      "index": 19
+    },
+    "8.0": {
+      "setup_price": 3.9,
+      "cost_factor": 0.979,
+      "loop_cost": 0.111,
+      "cost_per_m2": 51.04,
+      "in_stock": 0,
+      "index": 18
+    },
+    "10.0": {
+      "setup_price": 4.5,
+      "cost_factor": 1.11,
+      "loop_cost": 0.128,
+      "cost_per_m2": 66.2,
+      "in_stock": 1,
+      "index": 17
+    },
+    "12.0": {
+      "setup_price": 4.6,
+      "cost_factor": 1.3,
+      "loop_cost": 0.167,
+      "cost_per_m2": 81.58,
+      "in_stock": 0,
+      "index": 16
+    }
+  },
+  "Stainless Steel AISI 304 / 1.4301": {
+    "0.5": {
+      "setup_price": 5.2,
+      "cost_factor": 0.582,
+      "loop_cost": 0.081,
+      "cost_per_m2": 19.0,
+      "in_stock": 1,
+      "index": 15
+    },
+    "0.8": {
+      "setup_price": 5.2,
+      "cost_factor": 0.583,
+      "loop_cost": 0.082,
+      "cost_per_m2": 21.92,
+      "in_stock": 0,
+      "index": 14
+    },
+    "1.0": {
+      "setup_price": 5.2,
+      "cost_factor": 0.629,
+      "loop_cost": 0.083,
+      "cost_per_m2": 26.6,
+      "in_stock": 1,
+      "index": 13
+    },
+    "1.2": {
+      "setup_price": 3.3,
+      "cost_factor": 0.655,
+      "loop_cost": 0.084,
+      "cost_per_m2": 31.8,
+      "in_stock": 1,
+      "index": 12
+    },
+    "1.5": {
+      "setup_price": 5.2,
+      "cost_factor": 0.722,
+      "loop_cost": 0.09,
+      "cost_per_m2": 38.46,
+      "in_stock": 0,
+      "index": 11
+    },
+    "2.0": {
+      "setup_price": 5.2,
+      "cost_factor": 0.804,
+      "loop_cost": 0.11,
+      "cost_per_m2": 51.28,
+      "in_stock": 1,
+      "index": 10
+    },
+    "2.5": {
+      "setup_price": 5.2,
+      "cost_factor": 0.885,
+      "loop_cost": 0.12,
+      "cost_per_m2": 65.5,
+      "in_stock": 0,
+      "index": 9
+    },
+    "3.0": {
+      "setup_price": 5.2,
+      "cost_factor": 0.967,
+      "loop_cost": 0.135,
+      "cost_per_m2": 77.15,
+      "in_stock": 1,
+      "index": 8
+    },
+    "4.0": {
+      "setup_price": 5.2,
+      "cost_factor": 1.13,
+      "loop_cost": 0.163,
+      "cost_per_m2": 102.79,
+      "in_stock": 1,
+      "index": 7
+    },
+    "5.0": {
+      "setup_price": 5.2,
+      "cost_factor": 1.328,
+      "loop_cost": 0.186,
+      "cost_per_m2": 149.0,
+      "in_stock": 1,
+      "index": 6
+    },
+    "6.0": {
+      "setup_price": 5.2,
+      "cost_factor": 1.608,
+      "loop_cost": 0.221,
+      "cost_per_m2": 198.0,
+      "in_stock": 1,
+      "index": 5
+    }
+  },
+  "Aluminum 5754 / Al-Mg3 / 3.3535": {
+    "1.0": {
+      "setup_price": 5.2,
+      "cost_factor": 0.582,
+      "loop_cost": 0.07,
+      "cost_per_m2": 9.79,
+      "in_stock": 1,
+      "index": 4
+    },
+    "2.0": {
+      "setup_price": 5.2,
+      "cost_factor": 0.804,
+      "loop_cost": 0.076,
+      "cost_per_m2": 18.88,
+      "in_stock": 1,
+      "index": 3
+    },
+    "3.0": {
+      "setup_price": 5.2,
+      "cost_factor": 0.967,
+      "loop_cost": 0.097,
+      "cost_per_m2": 29.83,
+      "in_stock": 1,
+      "index": 2
+    },
+    "4.0": {
+      "setup_price": 5.2,
+      "cost_factor": 1.156,
+      "loop_cost": 0.11,
+      "cost_per_m2": 39.7,
+      "in_stock": 1,
+      "index": 1
+    }
+  }
+}
