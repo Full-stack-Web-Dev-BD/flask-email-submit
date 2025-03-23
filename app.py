@@ -288,7 +288,7 @@ def register():
         missing_fields = [field for field in required_fields if not data.get(field)]
 
         if missing_fields:
-            return jsonify({'error': 'Missing required fields', 'missing_fields': missing_fields}), 400
+            return jsonify({'error': f"Missing required fields: {', '.join(missing_fields)}"}), 400
 
         username = data['username']
         email = data['email']
@@ -407,7 +407,7 @@ def place_order():
     
     missing = [field for field, value in mandatory_fields.items() if not value]
     if missing:
-        return jsonify({"error": f"Missing required fields: {', '.join(missing)}"}), 400
+        return jsonify({'error': f"Missing required fields: {', '.join(missing_fields)}"}), 400
 
     # Save to database
     conn = sqlite3.connect(_DATABASE)
