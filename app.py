@@ -9,14 +9,18 @@ from datetime import datetime
 from flask_cors import CORS
 from fpdf import FPDF
 from PIL import Image  # For image processing
-
+from app import create_app
 import os
 from PIL import Image
 from fpdf import FPDF
 # Load environment variables
 load_dotenv()
 
-app = Flask(__name__)
+app = create_app()
+
+# Enable CORS for all routes
+CORS(app)
+
 CORS(app, supports_credentials=True)
 
 
