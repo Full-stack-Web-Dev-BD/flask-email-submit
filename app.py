@@ -37,7 +37,10 @@ app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL') == 'True'
 mail = Mail(app)
 
 # File upload configuration
-app.config['UPLOAD_FOLDER'] = 'uploads'
+
+# Set absolute path for the upload folder
+UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 
