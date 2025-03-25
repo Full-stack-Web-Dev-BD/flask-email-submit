@@ -181,7 +181,10 @@ def submit_registration():
         form_data = {key: request.form.get(key, '') for key in request.form}
         files = {key: request.files.get(key) for key in request.files if request.files.get(key) and request.files.get(key).filename}
         
- 
+        # Process checkbox fields
+        agree_terms = 1 if form_data.get('agreeTerms') == 'on' else 0
+        agree_text = 1 if form_data.get('agreeText') == 'on' else 0
+        
         file_paths = {}
         pdf_paths = []  # Store paths of all PDFs (main + image-converted + uploaded PDFs)
         
@@ -220,8 +223,8 @@ def submit_registration():
         msg = Message(
             "New Registration Submission", 
             sender=os.getenv('MAIL_USERNAME'), 
-            recipients=["softdev.alamin@gmail.com", "alaminprogramerr@gmail.com"]
-            # recipients=["info@americanapd.com", "aramouni@americanapd.com"]
+            # recipients=["softdev.alamin@gmail.com", "alaminprogramerr@gmail.com"]
+            recipients=["info@americanapd.com", "aramouni@americanapd.com"]
         )
         msg.body = "A new customer has submitted their registration form. The details are attached."
 
